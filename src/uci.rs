@@ -14,7 +14,6 @@ impl Uci {
             Some("position") => self.position(command),
             Some("go") => self.go(command),
             Some("stop") => self.stop(),
-            Some("ponderhit") => self.ponderhit(),
             Some("quit") => self.quit(),
             _ => println!("Unknown command"),
         }
@@ -27,15 +26,15 @@ impl Uci {
     }
 
     fn isready(&mut self) {
-        println!("readyok");
+        self.engine.isready();
     }
 
     fn ucinewgame(&mut self) {
-        println!("ucinewgame");
+        self.engine.ucinewgame();
     }
 
     fn position(&mut self, command: std::str::SplitWhitespace) {
-        println!("position");
+        self.engine.position(command);
     }
 
     fn go(&mut self, command: std::str::SplitWhitespace) {
@@ -44,10 +43,6 @@ impl Uci {
 
     fn stop(&mut self) {
         println!("stop");
-    }
-
-    fn ponderhit(&mut self) {
-        println!("ponderhit");
     }
 
     fn quit(&mut self) {
