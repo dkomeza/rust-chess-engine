@@ -1,5 +1,5 @@
 pub struct Board {
-    _board: [[char; 8]; 8],
+    pub _board: [[char; 8]; 8],
 }
 
 impl Board {

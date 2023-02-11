@@ -34,7 +34,9 @@ impl Engine {
     }
 
     pub fn go(&mut self, command: std::str::SplitWhitespace) {
+        self._move_gen.set_position(self._board._board);
         self.parse_go_command(command);
+        self._move_gen.generate_moves();
     }
 
     pub fn stop(&mut self) {
