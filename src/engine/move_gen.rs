@@ -51,7 +51,7 @@ impl MoveGen {
         {
             'p' => self.generate_pawn_moves(7 - i, j, self._position[i as usize][j as usize]),
             'r' => self.generate_rook_moves(7 - i, j, self._position[i as usize][j as usize]),
-            // 'N' => self.generate_knight_moves(i, j),
+            'n' => self.generate_knight_moves(i, j),
             'b' => self.generate_bishop_moves(i, j, self._position[i as usize][j as usize]),
             // 'Q' => self.generate_queen_moves(i, j),
             'k' => self.generate_king_moves(7 - i, j, self._position[i as usize][j as usize]),
@@ -160,6 +160,22 @@ impl MoveGen {
                     found = true;
                 }
                 self.create_position([row, col], [i, j]);
+            }
+        }
+    }
+
+    fn generate_knight_moves(&mut self, row: i8, col: i8) {
+        for i in -2i8..=2 {
+            for j in -2i8..=2 {
+                if (i == 2 || i == -2) && (j == 1 || j == -1) {
+                    if self.is_on_board(row + i, col + j) {
+                        self.create_position([row, col], [row + i, col + j]);
+                    }
+                } else if (i == 1 || i == -1) && (j == 2 || j == -2) {
+                    if self.is_on_board(row + i, col + j) {
+                        self.create_position([row, col], [row + i, col + j]);
+                    }
+                }
             }
         }
     }
