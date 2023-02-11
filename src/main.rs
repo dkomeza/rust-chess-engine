@@ -10,7 +10,6 @@ fn main() {
     let mut uci = uci::Uci { engine };
     loop {
         let mut command = String::new();
-        command.clear();
         std::io::stdin().read_line(&mut command).unwrap();
         uci.parse_command(command);
     }
