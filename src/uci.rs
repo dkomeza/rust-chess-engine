@@ -1,7 +1,7 @@
+use crate::engine::Engine;
+
 pub struct Uci {
-    pub _name: &'static str,
-    pub _author: &'static str,
-    pub _version: &'static str,
+    pub engine: Engine,
 }
 
 impl Uci {
@@ -20,9 +20,9 @@ impl Uci {
         }
     }
     fn uci(&mut self) {
-        println!("id name {}", self._name);
-        println!("id author {}", self._author);
-        println!("id version {}", self._version);
+        println!("id name {}", self.engine._name);
+        println!("id author {}", self.engine._author);
+        println!("id version {}", self.engine._version);
         println!("uciok");
     }
 
