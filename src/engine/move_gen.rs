@@ -52,7 +52,7 @@ impl MoveGen {
             'p' => self.generate_pawn_moves(7 - i, j, self._position[i as usize][j as usize]),
             'r' => self.generate_rook_moves(7 - i, j, self._position[i as usize][j as usize]),
             // 'N' => self.generate_knight_moves(i, j),
-            // 'B' => self.generate_bishop_moves(i, j),
+            'b' => self.generate_bishop_moves(i, j, self._position[i as usize][j as usize]),
             // 'Q' => self.generate_queen_moves(i, j),
             'k' => self.generate_king_moves(7 - i, j, self._position[i as usize][j as usize]),
             _ => (),
@@ -115,6 +115,48 @@ impl MoveGen {
                     break;
                 }
                 if !self.is_empty(i, j) && self.is_oponent(i, j, color) {
+                    found = true;
+                }
+                self.create_position([row, col], [i, j]);
+            }
+        }
+    }
+
+    fn generate_bishop_moves(&mut self, row: i8, col: i8, piece: char) {
+        for direction in 0i8..=3 {
+            let mut i = row;
+            let mut j = col;
+            let mut found = false;
+            loop {
+                if found {
+                    break;
+                }
+                match direction {
+                    0 => {
+                        i += 1;
+                        j += 1;
+                    }
+                    1 => {
+                        i += 1;
+                        j -= 1;
+                    }
+                    2 => {
+                        i -= 1;
+                        j += 1;
+                    }
+                    3 => {
+                        i -= 1;
+                        j -= 1;
+                    }
+                    _ => (),
+                }
+                if !self.is_on_board(i, j) {
+                    break;
+                }
+                if !self.is_empty(i, j) && !self.is_oponent(i, j, piece) {
+                    break;
+                }
+                if !self.is_empty(i, j) && self.is_oponent(i, j, piece) {
                     found = true;
                 }
                 self.create_position([row, col], [i, j]);
