@@ -15,6 +15,7 @@ impl Uci {
             Some("go") => self.go(command),
             Some("stop") => self.stop(),
             Some("quit") => self.quit(),
+            Some("print") => self.print_board(),
             _ => println!("Unknown command"),
         }
     }
@@ -38,14 +39,18 @@ impl Uci {
     }
 
     fn go(&mut self, command: std::str::SplitWhitespace) {
-        println!("go");
+        self.engine.go(command);
     }
 
     fn stop(&mut self) {
-        println!("stop");
+        self.engine.stop();
     }
 
     fn quit(&mut self) {
-        println!("quit");
+        std::process::exit(0);
+    }
+
+    fn print_board(&mut self) {
+        self.engine.print_board();
     }
 }

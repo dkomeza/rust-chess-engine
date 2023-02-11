@@ -70,4 +70,17 @@ impl Board {
             row += 1;
         }
     }
+
+    pub fn print_board(&self) {
+        println!("  +---+---+---+---+---+---+---+---+");
+        for row in 0..8 {
+            print!("{} |", 8 - row);
+            for col in 0..8 {
+                print!(" {} |", self._board[row][col]);
+            }
+            println!();
+            println!("  +---+---+---+---+---+---+---+---+");
+        }
+        println!("    a   b   c   d   e   f   g   h");
+    }
 }
