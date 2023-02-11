@@ -36,7 +36,15 @@ impl Engine {
     pub fn go(&mut self, command: std::str::SplitWhitespace) {
         self._move_gen.set_position(self._board._board);
         self.parse_go_command(command);
-        self._move_gen.generate_moves();
+        self._move_gen.generate_moves('w');
+        let mut iter = self._move_gen._found_positions.iter();
+        let mut current = 0;
+        while let Some(position) = iter.next() {
+            current += 1;
+            println!("current position: {}", current);
+            self._board.print_position(position);
+            println!("---------------------------------------------------------");
+        }
     }
 
     pub fn stop(&mut self) {
@@ -47,22 +55,12 @@ impl Engine {
         self._board.print_board();
     }
 
-    fn parse_go_command(&mut self, command: std::str::SplitWhitespace) {
+    fn parse_go_command(&mut self, command: std::str::SplitWhitespace) -> &str {
         let mut command = command;
         match command.next() {
-            Some("searchmoves") => println!("searchmoves"),
-            Some("ponder") => println!("ponder"),
-            Some("wtime") => println!("wtime"),
-            Some("btime") => println!("btime"),
-            Some("winc") => println!("winc"),
-            Some("binc") => println!("binc"),
-            Some("movestogo") => println!("movestogo"),
-            Some("depth") => println!("{}", command.next().unwrap()),
-            Some("nodes") => println!("nodes"),
-            Some("mate") => println!("mate"),
-            Some("movetime") => println!("movetime"),
-            Some("infinite") => println!("infinite"),
-            _ => println!("Unknown command"),
+            // Some("depth") => return command.next().unwrap(),
+            // Some("infinite") => return "0",
+            _ => return "",
         }
     }
 }

@@ -71,7 +71,7 @@ impl Board {
         }
     }
 
-    pub fn print_board(&self) {
+    pub fn print_board(&mut self) {
         println!("  +---+---+---+---+---+---+---+---+");
         for row in 0..8 {
             print!("{} |", 8 - row);
@@ -82,5 +82,16 @@ impl Board {
             println!("  +---+---+---+---+---+---+---+---+");
         }
         println!("    a   b   c   d   e   f   g   h");
+    }
+
+    pub fn print_position(&mut self, position: &[[char; 8]; 8]) {
+        for row in 0..8 {
+            print!("{} |", 8 - row);
+            for col in 0..8 {
+                print!(" {} |", position[row][col]);
+            }
+            println!();
+            println!("  +---+---+---+---+---+---+---+---+");
+        }
     }
 }
