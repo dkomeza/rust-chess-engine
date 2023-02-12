@@ -48,15 +48,15 @@ impl MoveGen {
         match piece {
             'P' => self.generate_pawn_moves(row, col, piece),
             'R' => self.generate_rook_moves(row, col, piece),
-            // 'N' => self.generate_knight_moves(col, row, piece),
-            // 'B' => self.generate_bishop_moves(col, row, piece),
-            // 'Q' => self.generate_queen_moves(col, row, piece),
+            'N' => self.generate_knight_moves(row, col, piece),
+            'B' => self.generate_bishop_moves(row, col, piece),
+            'Q' => self.generate_queen_moves(row, col, piece),
             // 'K' => self.generate_king_moves(col, row, piece),
             'p' => self.generate_pawn_moves(row, col, piece),
             'r' => self.generate_rook_moves(row, col, piece),
-            // 'n' => self.generate_knight_moves(col, row, piece),
-            // 'b' => self.generate_bishop_moves(col, row, piece),
-            // 'q' => self.generate_queen_moves(col, row, piece),
+            'n' => self.generate_knight_moves(row, col, piece),
+            'b' => self.generate_bishop_moves(row, col, piece),
+            'q' => self.generate_queen_moves(row, col, piece),
             // 'k' => self.generate_king_moves(col, row, piece),
             _ => (),
         }
@@ -121,6 +121,158 @@ impl MoveGen {
                     1 => i -= 1,
                     2 => j += 1,
                     3 => j -= 1,
+                    _ => (),
+                }
+                if i < 0 || i > 7 || j < 0 || j > 7 {
+                    break;
+                }
+                let field = self._position[i as usize][j as usize];
+                if !self.is_legal_move([row as i8, col as i8], [i, j], piece) && field != ' ' {
+                    break;
+                }
+                if self.is_legal_move([row as i8, col as i8], [i, j], piece) {
+                    if field != ' ' {
+                        found = true;
+                    }
+                    self.create_position([row as i8, col as i8], [i, j], piece)
+                }
+            }
+        }
+    }
+
+    fn generate_knight_moves(&mut self, row: usize, col: usize, piece: char) {
+        for i in -2i8..=2 {
+            for j in -2i8..=2 {
+                if (i == 2 || i == -2) && (j == 1 || j == -1) {
+                    if self.is_legal_move(
+                        [row as i8, col as i8],
+                        [row as i8 + i, col as i8 + j],
+                        piece,
+                    ) {
+                        self.create_position(
+                            [row as i8, col as i8],
+                            [row as i8 + i, col as i8 + j],
+                            piece,
+                        )
+                    }
+                } else if (i == 1 || i == -1) && (j == 2 || j == -2) {
+                    if self.is_legal_move(
+                        [row as i8, col as i8],
+                        [row as i8 + i, col as i8 + j],
+                        piece,
+                    ) {
+                        self.create_position(
+                            [row as i8, col as i8],
+                            [row as i8 + i, col as i8 + j],
+                            piece,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fn generate_bishop_moves(&mut self, row: usize, col: usize, piece: char) {
+        for direction in 0i8..=3 {
+            let mut i = row as i8;
+            let mut j = col as i8;
+            let mut found = false;
+            loop {
+                if found {
+                    break;
+                }
+                match direction {
+                    0 => {
+                        i += 1;
+                        j += 1;
+                    }
+                    1 => {
+                        i += 1;
+                        j -= 1;
+                    }
+                    2 => {
+                        i -= 1;
+                        j += 1;
+                    }
+                    3 => {
+                        i -= 1;
+                        j -= 1;
+                    }
+                    _ => (),
+                }
+                if i < 0 || i > 7 || j < 0 || j > 7 {
+                    break;
+                }
+                let field = self._position[i as usize][j as usize];
+                if !self.is_legal_move([row as i8, col as i8], [i, j], piece) && field != ' ' {
+                    break;
+                }
+                if self.is_legal_move([row as i8, col as i8], [i, j], piece) {
+                    if field != ' ' {
+                        found = true;
+                    }
+                    self.create_position([row as i8, col as i8], [i, j], piece)
+                }
+            }
+        }
+    }
+
+    fn generate_queen_moves(&mut self, row: usize, col: usize, piece: char) {
+        for direction in 0i8..=3 {
+            let mut i = row as i8;
+            let mut j = col as i8;
+            let mut found = false;
+            loop {
+                if found {
+                    break;
+                }
+                match direction {
+                    0 => i += 1,
+                    1 => i -= 1,
+                    2 => j += 1,
+                    3 => j -= 1,
+                    _ => (),
+                }
+                if i < 0 || i > 7 || j < 0 || j > 7 {
+                    break;
+                }
+                let field = self._position[i as usize][j as usize];
+                if !self.is_legal_move([row as i8, col as i8], [i, j], piece) && field != ' ' {
+                    break;
+                }
+                if self.is_legal_move([row as i8, col as i8], [i, j], piece) {
+                    if field != ' ' {
+                        found = true;
+                    }
+                    self.create_position([row as i8, col as i8], [i, j], piece)
+                }
+            }
+        }
+        for direction in 0i8..=3 {
+            let mut i = row as i8;
+            let mut j = col as i8;
+            let mut found = false;
+            loop {
+                if found {
+                    break;
+                }
+                match direction {
+                    0 => {
+                        i += 1;
+                        j += 1;
+                    }
+                    1 => {
+                        i += 1;
+                        j -= 1;
+                    }
+                    2 => {
+                        i -= 1;
+                        j += 1;
+                    }
+                    3 => {
+                        i -= 1;
+                        j -= 1;
+                    }
                     _ => (),
                 }
                 if i < 0 || i > 7 || j < 0 || j > 7 {
