@@ -37,13 +37,13 @@ impl Engine {
         self._move_gen.set_position(self._board._board);
         self.parse_go_command(command);
         self._move_gen.generate_moves('w');
-        let mut iter = self._move_gen._found_positions.iter();
-        let mut current = 0;
-        while let Some(position) = iter.next() {
-            current += 1;
-            println!("current position: {}", current);
+        let found_positions = self._move_gen._found_positions.clone();
+        let mut current_position = 0;
+        for position in found_positions.iter() {
+            println!("position {}", current_position);
             self._board.print_position(position);
-            println!("---------------------------------------------------------");
+            println!("--------------------------------------");
+            current_position += 1;
         }
     }
 
