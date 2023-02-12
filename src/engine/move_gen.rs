@@ -45,18 +45,15 @@ impl MoveGen {
 
     fn generate_piece_moves(&mut self, row: usize, col: usize) {
         let piece = self._position[row][col];
-        if self.king_in_check(piece, self._position) {
-            println!("King in check!");
-        }
         match piece {
             'P' => self.generate_pawn_moves(row, col, piece),
-            // 'R' => self.generate_rook_moves(col, row, piece),
+            'R' => self.generate_rook_moves(row, col, piece),
             // 'N' => self.generate_knight_moves(col, row, piece),
             // 'B' => self.generate_bishop_moves(col, row, piece),
             // 'Q' => self.generate_queen_moves(col, row, piece),
             // 'K' => self.generate_king_moves(col, row, piece),
             'p' => self.generate_pawn_moves(row, col, piece),
-            // 'r' => self.generate_rook_moves(col, row, piece),
+            'r' => self.generate_rook_moves(row, col, piece),
             // 'n' => self.generate_knight_moves(col, row, piece),
             // 'b' => self.generate_bishop_moves(col, row, piece),
             // 'q' => self.generate_queen_moves(col, row, piece),
@@ -106,6 +103,39 @@ impl MoveGen {
                     [row as i8 - 1, col as i8 + 1],
                     piece,
                 )
+            }
+        }
+    }
+
+    fn generate_rook_moves(&mut self, row: usize, col: usize, piece: char) {
+        for direction in 0i8..=3 {
+            let mut i = row as i8;
+            let mut j = col as i8;
+            let mut found = false;
+            loop {
+                if found {
+                    break;
+                }
+                match direction {
+                    0 => i += 1,
+                    1 => i -= 1,
+                    2 => j += 1,
+                    3 => j -= 1,
+                    _ => (),
+                }
+                if i < 0 || i > 7 || j < 0 || j > 7 {
+                    break;
+                }
+                let field = self._position[i as usize][j as usize];
+                if !self.is_legal_move([row as i8, col as i8], [i, j], piece) && field != ' ' {
+                    break;
+                }
+                if self.is_legal_move([row as i8, col as i8], [i, j], piece) {
+                    if field != ' ' {
+                        found = true;
+                    }
+                    self.create_position([row as i8, col as i8], [i, j], piece)
+                }
             }
         }
     }

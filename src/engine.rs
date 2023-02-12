@@ -38,7 +38,7 @@ impl Engine {
         self.parse_go_command(command);
         self._move_gen.generate_moves('w');
         let found_positions = self._move_gen._found_positions.clone();
-        let mut current_position = 0;
+        let mut current_position = 1;
         for position in found_positions.iter() {
             println!("position {}", current_position);
             self._board.print_position(position);
