@@ -51,13 +51,13 @@ impl MoveGen {
             'N' => self.generate_knight_moves(row, col, piece),
             'B' => self.generate_bishop_moves(row, col, piece),
             'Q' => self.generate_queen_moves(row, col, piece),
-            // 'K' => self.generate_king_moves(col, row, piece),
+            'K' => self.generate_king_moves(row, col, piece),
             'p' => self.generate_pawn_moves(row, col, piece),
             'r' => self.generate_rook_moves(row, col, piece),
             'n' => self.generate_knight_moves(row, col, piece),
             'b' => self.generate_bishop_moves(row, col, piece),
             'q' => self.generate_queen_moves(row, col, piece),
-            // 'k' => self.generate_king_moves(col, row, piece),
+            'k' => self.generate_king_moves(row, col, piece),
             _ => (),
         }
     }
@@ -287,6 +287,24 @@ impl MoveGen {
                         found = true;
                     }
                     self.create_position([row as i8, col as i8], [i, j], piece)
+                }
+            }
+        }
+    }
+
+    fn generate_king_moves(&mut self, row: usize, col: usize, piece: char) {
+        for i in -1i8..=1 {
+            for j in -1i8..=1 {
+                if self.is_legal_move(
+                    [row as i8, col as i8],
+                    [row as i8 + i, col as i8 + j],
+                    piece,
+                ) {
+                    self.create_position(
+                        [row as i8, col as i8],
+                        [row as i8 + i, col as i8 + j],
+                        piece,
+                    )
                 }
             }
         }
