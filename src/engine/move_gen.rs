@@ -49,13 +49,13 @@ impl MoveGen {
             println!("King in check!");
         }
         match piece {
-            // 'P' => self.generate_pawn_moves(col, row, piece),
+            'P' => self.generate_pawn_moves(row, col, piece),
             // 'R' => self.generate_rook_moves(col, row, piece),
             // 'N' => self.generate_knight_moves(col, row, piece),
             // 'B' => self.generate_bishop_moves(col, row, piece),
             // 'Q' => self.generate_queen_moves(col, row, piece),
             // 'K' => self.generate_king_moves(col, row, piece),
-            // 'p' => self.generate_pawn_moves(col, row, piece),
+            'p' => self.generate_pawn_moves(row, col, piece),
             // 'r' => self.generate_rook_moves(col, row, piece),
             // 'n' => self.generate_knight_moves(col, row, piece),
             // 'b' => self.generate_bishop_moves(col, row, piece),
@@ -63,6 +63,67 @@ impl MoveGen {
             // 'k' => self.generate_king_moves(col, row, piece),
             _ => (),
         }
+    }
+
+    fn generate_pawn_moves(&mut self, row: usize, col: usize, piece: char) {
+        if piece == 'P' {
+            if row == 6
+                && self._position[row - 1][col] == ' '
+                && self.is_legal_move([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
+            {
+                self.create_position([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
+            }
+
+            if self.is_legal_move([row as i8, col as i8], [row as i8 - 1, col as i8], piece) {
+                self.create_position([row as i8, col as i8], [row as i8 - 1, col as i8], piece)
+            }
+
+            if col > 0
+                && !(self._position[row - 1][col - 1] == ' ')
+                && self.is_legal_move(
+                    [row as i8, col as i8],
+                    [row as i8 - 1, col as i8 - 1],
+                    piece,
+                )
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 - 1, col as i8 - 1],
+                    piece,
+                )
+            }
+
+            if col < 7
+                && !(self._position[row - 1][col + 1] == ' ')
+                && self.is_legal_move(
+                    [row as i8, col as i8],
+                    [row as i8 - 1, col as i8 + 1],
+                    piece,
+                )
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 - 1, col as i8 + 1],
+                    piece,
+                )
+            }
+        }
+    }
+
+    fn is_legal_move(&mut self, old: [i8; 2], new: [i8; 2], piece: char) -> bool {
+        if !self.is_on_board(new[0], new[1]) {
+            return false;
+        }
+        if self._position[new[0] as usize][new[1] as usize] != ' ' && !self.is_oponent(piece, new) {
+            return false;
+        }
+        let mut position = self._position.clone();
+        position[new[0] as usize][new[1] as usize] = piece;
+        position[old[0] as usize][old[1] as usize] = ' ';
+        if self.king_in_check(piece, position) {
+            return false;
+        }
+        true
     }
 
     fn king_in_check(&mut self, piece: char, board: [[char; 8]; 8]) -> bool {
@@ -180,20 +241,26 @@ impl MoveGen {
             }
         } else {
         }
-
         false
     }
 
-    fn is_on_board(&self, row: i8, col: i8) -> bool {
+    fn is_on_board(&mut self, row: i8, col: i8) -> bool {
         row >= 0 && row < 8 && col >= 0 && col < 8
     }
 
-    fn create_position(&mut self, old: [i8; 2], new: [i8; 2]) {
+    fn is_oponent(&mut self, piece: char, new: [i8; 2]) -> bool {
+        if piece.is_uppercase() {
+            return self._position[new[0] as usize][new[1] as usize].is_lowercase();
+        } else {
+            return self._position[new[0] as usize][new[1] as usize].is_uppercase();
+        }
+    }
+
+    fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char) {
         self._found_moves += 1;
         let mut new_position = self._position;
-        new_position[7 - old[0] as usize][old[1] as usize] = ' ';
-        new_position[7 - new[0] as usize][new[1] as usize] =
-            self._position[7 - old[0] as usize][old[1] as usize];
+        new_position[old[0] as usize][old[1] as usize] = ' ';
+        new_position[new[0] as usize][new[1] as usize] = piece;
         self._found_positions.push(new_position);
     }
 }
