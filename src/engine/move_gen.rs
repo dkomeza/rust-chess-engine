@@ -81,7 +81,6 @@ impl MoveGen {
                     [-1, -1],
                 );
                 self._own_en_passant = format!("{}{}", self._col_names[col], 3);
-                self._own_en_passant = format!("{}{}", (col as u8 + 97) as char, row as u8 - 1);
             }
 
             if self.is_legal_move([row as i8, col as i8], [row as i8 - 1, col as i8], piece) {
@@ -141,6 +140,84 @@ impl MoveGen {
                         [row as i8 - 1, col as i8 - 1],
                         piece,
                         [3, (col - 1) as i8],
+                    )
+                }
+            }
+        } else {
+            // double push
+            if row == 1
+                && self._position[row + 1][col] == ' '
+                && self.is_legal_move([row as i8, col as i8], [row as i8 + 2, col as i8], piece)
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + 2, col as i8],
+                    piece,
+                    [-1, -1],
+                );
+                self._own_en_passant = format!("{}{}", self._col_names[col], 6);
+            }
+
+            // normal push
+            if self.is_legal_move([row as i8, col as i8], [row as i8 + 1, col as i8], piece) {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + 1, col as i8],
+                    piece,
+                    [-1, -1],
+                )
+            }
+
+            // take left
+            if col > 0
+                && !(self._position[row + 1][col - 1] == ' ')
+                && self.is_legal_move(
+                    [row as i8, col as i8],
+                    [row as i8 + 1, col as i8 - 1],
+                    piece,
+                )
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + 1, col as i8 - 1],
+                    piece,
+                    [-1, -1],
+                )
+            }
+
+            //take right
+            if col < 7
+                && !(self._position[row + 1][col + 1] == ' ')
+                && self.is_legal_move(
+                    [row as i8, col as i8],
+                    [row as i8 + 1, col as i8 + 1],
+                    piece,
+                )
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + 1, col as i8 + 1],
+                    piece,
+                    [-1, -1],
+                )
+            }
+
+            // en passant
+            if self._en_passant != "-" && row == 4 {
+                if col < 7 && self._en_passant == format!("{}{}", self._col_names[(col + 1)], 3) {
+                    self.create_position(
+                        [row as i8, col as i8],
+                        [row as i8 + 1, col as i8 + 1],
+                        piece,
+                        [4, (col + 1) as i8],
+                    )
+                }
+                if col > 0 && self._en_passant == format!("{}{}", self._col_names[(col - 1)], 3) {
+                    self.create_position(
+                        [row as i8, col as i8],
+                        [row as i8 + 1, col as i8 - 1],
+                        piece,
+                        [4, (col - 1) as i8],
                     )
                 }
             }

@@ -34,6 +34,7 @@ impl Engine {
     }
 
     pub fn go(&mut self, command: std::str::SplitWhitespace) {
+        let mut all_positions: Vec<[[char; 8]; 8]> = Vec::new();
         self._move_gen.set_position(self._board._board);
         self._move_gen
             .set_en_passant(self._board._en_passant.clone());
@@ -41,10 +42,19 @@ impl Engine {
         self._move_gen.generate_moves('w');
         let found_positions = self._move_gen._found_positions.clone();
         let mut current_position = 1;
+        // let depth = 3;
+        // let mut current_depth = 0;
         for position in found_positions.iter() {
-            println!("position {}", current_position);
+            self._move_gen.set_position(position.to_owned());
+            self._move_gen.generate_moves('b');
+            for new_position in self._move_gen._found_positions.iter() {
+                all_positions.push(new_position.to_owned())
+            }
+        }
+        for position in all_positions.iter() {
+            println!("--------- Position {} ---------", current_position);
             self._board.print_position(position);
-            println!("--------------------------------------");
+            println!("-------------------------------");
             current_position += 1;
         }
     }
