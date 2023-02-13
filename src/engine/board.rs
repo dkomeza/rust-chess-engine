@@ -1,5 +1,9 @@
 pub struct Board {
     pub _board: [[char; 8]; 8],
+    pub _turn: char,
+    pub _castling: String,
+    pub _en_passant: String,
+    pub _move_history: Vec<String>,
 }
 
 impl Board {
@@ -15,11 +19,15 @@ impl Board {
                 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             ],
+            _turn: 'w',
+            _castling: String::from("KQkq"),
+            _en_passant: String::from("-"),
+            _move_history: Vec::new(),
         }
     }
 
     pub fn position(&mut self, command: std::str::SplitWhitespace) {
-        let mut command = command;
+        let mut command = command.to_owned();
         match command.next() {
             Some("startpos") => self.startpos(),
             Some("fen") => self.fen(command),
@@ -38,21 +46,40 @@ impl Board {
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
             ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
         ];
+        // while let Some(token) = command.next() {
+        //     match token {
+        //         "moves" => self.moves(command),
+        //         _ => println!("Unknown command"),
+        //     }
+        // }
     }
 
     fn fen(&mut self, command: std::str::SplitWhitespace) {
-        let mut command = command;
-        let mut fen = String::new();
-        while let Some(word) = command.next() {
-            fen.push_str(word);
-            fen.push(' ');
+        let mut command = command.to_owned();
+        let fen_string = command.next();
+        let fen = if fen_string.is_some() {
+            fen_string.unwrap().to_string()
+        } else {
+            String::from("")
+        };
+        if fen.len() == 0 {
+            println!("Unknown command");
+            return;
         }
-        let mut fen = fen.split_whitespace();
-        let mut board = String::new();
-        while let Some(word) = fen.next() {
-            board.push_str(word);
+
+        let turn = command.next();
+        if turn.is_some() {
+            self._turn = turn.unwrap().chars().next().unwrap();
         }
-        let mut board = board.split('/');
+        let castling = command.next();
+        if castling.is_some() {
+            self._castling = castling.unwrap().to_string();
+        }
+        let en_passant = command.next();
+        if en_passant.is_some() {
+            self._en_passant = en_passant.unwrap().to_string();
+        }
+        let mut board = fen.split('/');
         let mut row = 0;
         while let Some(word) = board.next() {
             let mut col = 0;
