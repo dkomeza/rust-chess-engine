@@ -74,13 +74,23 @@ impl MoveGen {
                 && self._position[row - 1][col] == ' '
                 && self.is_legal_move([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
             {
-                self.create_position([row as i8, col as i8], [row as i8 - 2, col as i8], piece, [-1, -1]);
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 - 2, col as i8],
+                    piece,
+                    [-1, -1],
+                );
                 self._own_en_passant = format!("{}{}", self._col_names[col], 3);
                 self._own_en_passant = format!("{}{}", (col as u8 + 97) as char, row as u8 - 1);
             }
 
             if self.is_legal_move([row as i8, col as i8], [row as i8 - 1, col as i8], piece) {
-                self.create_position([row as i8, col as i8], [row as i8 - 1, col as i8], piece, [-1, -1])
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 - 1, col as i8],
+                    piece,
+                    [-1, -1],
+                )
             }
 
             if col > 0
@@ -94,7 +104,8 @@ impl MoveGen {
                 self.create_position(
                     [row as i8, col as i8],
                     [row as i8 - 1, col as i8 - 1],
-                    piece, [-1, -1]
+                    piece,
+                    [-1, -1],
                 )
             }
 
@@ -109,7 +120,8 @@ impl MoveGen {
                 self.create_position(
                     [row as i8, col as i8],
                     [row as i8 - 1, col as i8 + 1],
-                    piece, [-1, -1]
+                    piece,
+                    [-1, -1],
                 )
             }
 
@@ -120,7 +132,7 @@ impl MoveGen {
                         [row as i8, col as i8],
                         [row as i8 - 1, col as i8 + 1],
                         piece,
-                        [(col + 1) as i8, 3]
+                        [3, (col + 1) as i8],
                     )
                 }
                 if col > 0 && self._en_passant == format!("{}{}", self._col_names[(col - 1)], 6) {
@@ -128,7 +140,7 @@ impl MoveGen {
                         [row as i8, col as i8],
                         [row as i8 - 1, col as i8 - 1],
                         piece,
-                        [(col - 1) as i8, 3]
+                        [3, (col - 1) as i8],
                     )
                 }
             }
@@ -333,7 +345,8 @@ impl MoveGen {
                     self.create_position(
                         [row as i8, col as i8],
                         [row as i8 + i, col as i8 + j],
-                        piece, [-1, -1]
+                        piece,
+                        [-1, -1],
                     )
                 }
             }
