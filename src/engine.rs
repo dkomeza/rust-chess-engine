@@ -35,6 +35,8 @@ impl Engine {
 
     pub fn go(&mut self, command: std::str::SplitWhitespace) {
         self._move_gen.set_position(self._board._board);
+        self._move_gen
+            .set_en_passant(self._board._en_passant.clone());
         self.parse_go_command(command);
         self._move_gen.generate_moves('w');
         let found_positions = self._move_gen._found_positions.clone();

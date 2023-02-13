@@ -1,8 +1,10 @@
 pub struct MoveGen {
     _position: [[char; 8]; 8],
     _col_names: [char; 8],
-    _found_moves: i128,
+    _en_passant: String,
     pub _found_positions: Vec<[[char; 8]; 8]>,
+    pub _found_moves: Vec<String>,
+    pub _own_en_passant: String,
 }
 
 impl MoveGen {
@@ -19,19 +21,23 @@ impl MoveGen {
                 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             ],
             _col_names: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
-            _found_moves: 0,
             _found_positions: Vec::new(),
+            _found_moves: Vec::new(),
+            _en_passant: String::from("-"),
+            _own_en_passant: String::from("-"),
         }
     }
 
     pub fn set_position(&mut self, position: [[char; 8]; 8]) {
         self._position = position;
-        self._found_moves = 0;
+    }
+
+    pub fn set_en_passant(&mut self, en_passant: String) {
+        self._en_passant = en_passant;
     }
 
     pub fn generate_moves(&mut self, color: char) {
         self._found_positions.clear();
-        self._found_moves = 0;
         for i in 0..8 {
             for j in 0..8 {
                 if self._position[i as usize][j as usize].is_uppercase() == (color == 'w') {
@@ -68,11 +74,13 @@ impl MoveGen {
                 && self._position[row - 1][col] == ' '
                 && self.is_legal_move([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
             {
-                self.create_position([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
+                self.create_position([row as i8, col as i8], [row as i8 - 2, col as i8], piece, [-1, -1]);
+                self._own_en_passant = format!("{}{}", self._col_names[col], 3);
+                self._own_en_passant = format!("{}{}", (col as u8 + 97) as char, row as u8 - 1);
             }
 
             if self.is_legal_move([row as i8, col as i8], [row as i8 - 1, col as i8], piece) {
-                self.create_position([row as i8, col as i8], [row as i8 - 1, col as i8], piece)
+                self.create_position([row as i8, col as i8], [row as i8 - 1, col as i8], piece, [-1, -1])
             }
 
             if col > 0
@@ -86,7 +94,7 @@ impl MoveGen {
                 self.create_position(
                     [row as i8, col as i8],
                     [row as i8 - 1, col as i8 - 1],
-                    piece,
+                    piece, [-1, -1]
                 )
             }
 
@@ -101,8 +109,28 @@ impl MoveGen {
                 self.create_position(
                     [row as i8, col as i8],
                     [row as i8 - 1, col as i8 + 1],
-                    piece,
+                    piece, [-1, -1]
                 )
+            }
+
+            // en passant
+            if self._en_passant != "-" && row == 3 {
+                if col < 7 && self._en_passant == format!("{}{}", self._col_names[(col + 1)], 6) {
+                    self.create_position(
+                        [row as i8, col as i8],
+                        [row as i8 - 1, col as i8 + 1],
+                        piece,
+                        [(col + 1) as i8, 3]
+                    )
+                }
+                if col > 0 && self._en_passant == format!("{}{}", self._col_names[(col - 1)], 6) {
+                    self.create_position(
+                        [row as i8, col as i8],
+                        [row as i8 - 1, col as i8 - 1],
+                        piece,
+                        [(col - 1) as i8, 3]
+                    )
+                }
             }
         }
     }
@@ -134,7 +162,7 @@ impl MoveGen {
                     if field != ' ' {
                         found = true;
                     }
-                    self.create_position([row as i8, col as i8], [i, j], piece)
+                    self.create_position([row as i8, col as i8], [i, j], piece, [-1, -1])
                 }
             }
         }
@@ -153,6 +181,7 @@ impl MoveGen {
                             [row as i8, col as i8],
                             [row as i8 + i, col as i8 + j],
                             piece,
+                            [-1, -1],
                         )
                     }
                 } else if (i == 1 || i == -1) && (j == 2 || j == -2) {
@@ -165,6 +194,7 @@ impl MoveGen {
                             [row as i8, col as i8],
                             [row as i8 + i, col as i8 + j],
                             piece,
+                            [-1, -1],
                         )
                     }
                 }
@@ -211,7 +241,7 @@ impl MoveGen {
                     if field != ' ' {
                         found = true;
                     }
-                    self.create_position([row as i8, col as i8], [i, j], piece)
+                    self.create_position([row as i8, col as i8], [i, j], piece, [-1, -1])
                 }
             }
         }
@@ -244,7 +274,7 @@ impl MoveGen {
                     if field != ' ' {
                         found = true;
                     }
-                    self.create_position([row as i8, col as i8], [i, j], piece)
+                    self.create_position([row as i8, col as i8], [i, j], piece, [-1, -1])
                 }
             }
         }
@@ -286,7 +316,7 @@ impl MoveGen {
                     if field != ' ' {
                         found = true;
                     }
-                    self.create_position([row as i8, col as i8], [i, j], piece)
+                    self.create_position([row as i8, col as i8], [i, j], piece, [-1, -1])
                 }
             }
         }
@@ -303,7 +333,7 @@ impl MoveGen {
                     self.create_position(
                         [row as i8, col as i8],
                         [row as i8 + i, col as i8 + j],
-                        piece,
+                        piece, [-1, -1]
                     )
                 }
             }
@@ -456,8 +486,10 @@ impl MoveGen {
         }
     }
 
-    fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char) {
-        self._found_moves += 1;
+    fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char, en_passant: [i8; 2]) {
+        if en_passant[0] != -1 {
+            self._position[en_passant[0] as usize][en_passant[1] as usize] = ' ';
+        }
         let mut new_position = self._position;
         new_position[old[0] as usize][old[1] as usize] = ' ';
         new_position[new[0] as usize][new[1] as usize] = piece;
