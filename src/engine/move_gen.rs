@@ -110,23 +110,6 @@ impl MoveGen {
                     piece,
                 );
             }
-
-            // En passant capture
-            if piece == 'P' && self._position[(row as i8 + direction) as usize][col - 1] == 'x' {
-                self.create_position(
-                    [row as i8, col as i8],
-                    [row as i8 + direction, col as i8 - 1],
-                    piece,
-                );
-            } else if piece == 'p'
-                && self._position[(row as i8 + direction) as usize][col - 1] == 'X'
-            {
-                self.create_position(
-                    [row as i8, col as i8],
-                    [row as i8 + direction, col as i8 - 1],
-                    piece,
-                );
-            }
         }
 
         // Capture right
@@ -136,23 +119,6 @@ impl MoveGen {
                 [row as i8 + direction, col as i8 + 1],
                 piece,
             ) && self.is_oponent(piece, [row as i8 + direction, col as i8 + 1])
-            {
-                self.create_position(
-                    [row as i8, col as i8],
-                    [row as i8 + direction, col as i8 + 1],
-                    piece,
-                );
-            }
-
-            // En passant capture
-            if piece == 'P' && self._position[(row as i8 + direction) as usize][col + 1] == 'x' {
-                self.create_position(
-                    [row as i8, col as i8],
-                    [row as i8 + direction, col as i8 + 1],
-                    piece,
-                );
-            } else if piece == 'p'
-                && self._position[(row as i8 + direction) as usize][col + 1] == 'X'
             {
                 self.create_position(
                     [row as i8, col as i8],
