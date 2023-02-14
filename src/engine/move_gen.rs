@@ -553,8 +553,8 @@ impl MoveGen {
 
     fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char) {
         let mut new_position = self._position;
-        self.create_en_passant(old, new, piece, &mut new_position);
         self.capture_en_passant(old, new, piece, &mut new_position);
+        self.create_en_passant(old, new, piece, &mut new_position);
         new_position[old[0] as usize][old[1] as usize] = ' ';
         if self.can_promote(new, piece) {
             let pieces = self.promote(piece);
@@ -602,12 +602,21 @@ impl MoveGen {
         new_position: &mut [[char; 8]; 8],
     ) {
         if piece == 'P' {
-            if new[1] - old[1] != 0 && new_position[new[0] as usize][new[1] as usize] == ' ' {
+            if new_position[new[0] as usize][new[1] as usize] == 'x' {
                 new_position[old[0] as usize][new[1] as usize] = ' ';
             }
         } else if piece == 'p' {
-            if new[1] - old[1] != 0 && new_position[new[0] as usize][new[1] as usize] == ' ' {
+            if new_position[new[0] as usize][new[1] as usize] == 'X' {
                 new_position[old[0] as usize][new[1] as usize] = ' ';
+            }
+        }
+
+        // clear en passant
+        for i in 0..8 {
+            for j in 0..8 {
+                if new_position[i][j] == 'x' || new_position[i][j] == 'X' {
+                    new_position[i][j] = ' ';
+                }
             }
         }
     }
