@@ -48,13 +48,13 @@ impl MoveGen {
     fn generate_piece_moves(&mut self, row: usize, col: usize) {
         let piece = self._position[row][col];
         match piece {
-            // 'P' => self.generate_pawn_moves(row, col, piece),
+            'P' => self.generate_pawn_moves(row, col, piece),
             // 'R' => self.generate_rook_moves(row, col, piece),
             // 'N' => self.generate_knight_moves(row, col, piece),
             // 'B' => self.generate_bishop_moves(row, col, piece),
             // 'Q' => self.generate_queen_moves(row, col, piece),
             'K' => self.generate_king_moves(row, col, piece),
-            // 'p' => self.generate_pawn_moves(row, col, piece),
+            'p' => self.generate_pawn_moves(row, col, piece),
             // 'r' => self.generate_rook_moves(row, col, piece),
             // 'n' => self.generate_knight_moves(row, col, piece),
             // 'b' => self.generate_bishop_moves(row, col, piece),
@@ -64,160 +64,104 @@ impl MoveGen {
         }
     }
 
-    // fn generate_pawn_moves(&mut self, row: usize, col: usize, piece: char) {
-    //     if piece == 'P' {
-    //         if row == 6
-    //             && self._position[row - 1][col] == ' '
-    //             && self.is_legal_move([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 2, col as i8],
-    //                 piece,
-    //                 [-1, -1],
-    //             );
-    //         }
+    fn generate_pawn_moves(&mut self, row: usize, col: usize, piece: char) {
+        let direction = if piece.is_uppercase() { -1 } else { 1 };
 
-    //         if self.is_legal_move([row as i8, col as i8], [row as i8 - 1, col as i8], piece) {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 1, col as i8],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
+        // Double push
+        if piece == 'P' && row == 6 {
+            if self._position[row - 1][col] == ' '
+                && self.is_legal_move([row as i8, col as i8], [row as i8 - 2, col as i8], piece)
+            {
+                self.create_position([row as i8, col as i8], [row as i8 - 2, col as i8], piece);
+            }
+        } else if piece == 'p' && row == 1 {
+            if self._position[row + 1][col] == ' '
+                && self.is_legal_move([row as i8, col as i8], [row as i8 + 2, col as i8], piece)
+            {
+                self.create_position([row as i8, col as i8], [row as i8 + 2, col as i8], piece);
+            }
+        }
 
-    //         if col > 0
-    //             && !(self._position[row - 1][col - 1] == ' ')
-    //             && self.is_legal_move(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 1, col as i8 - 1],
-    //                 piece,
-    //             )
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 1, col as i8 - 1],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
+        // Single push
+        if self.is_legal_move(
+            [row as i8, col as i8],
+            [row as i8 + direction, col as i8],
+            piece,
+        ) {
+            self.create_position(
+                [row as i8, col as i8],
+                [row as i8 + direction, col as i8],
+                piece,
+            );
+        }
 
-    //         if col < 7
-    //             && !(self._position[row - 1][col + 1] == ' ')
-    //             && self.is_legal_move(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 1, col as i8 + 1],
-    //                 piece,
-    //             )
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 - 1, col as i8 + 1],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
+        // Capture left
+        if col > 0 {
+            // Normal capture
+            if self.is_legal_move(
+                [row as i8, col as i8],
+                [row as i8 + direction, col as i8 - 1],
+                piece,
+            ) && self.is_oponent(piece, [row as i8 + direction, col as i8 - 1])
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 - 1],
+                    piece,
+                );
+            }
 
-    //         // en passant
-    //         if self._en_passant != "-" && row == 3 {
-    //             if col < 7 && self._en_passant == format!("{}{}", self._col_names[(col + 1)], 6) {
-    //                 self.create_position(
-    //                     [row as i8, col as i8],
-    //                     [row as i8 - 1, col as i8 + 1],
-    //                     piece,
-    //                     [3, (col + 1) as i8],
-    //                 )
-    //             }
-    //             if col > 0 && self._en_passant == format!("{}{}", self._col_names[(col - 1)], 6) {
-    //                 self.create_position(
-    //                     [row as i8, col as i8],
-    //                     [row as i8 - 1, col as i8 - 1],
-    //                     piece,
-    //                     [3, (col - 1) as i8],
-    //                 )
-    //             }
-    //         }
-    //     } else {
-    //         // double push
-    //         if row == 1
-    //             && self._position[row + 1][col] == ' '
-    //             && self.is_legal_move([row as i8, col as i8], [row as i8 + 2, col as i8], piece)
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 2, col as i8],
-    //                 piece,
-    //                 [-1, -1],
-    //             );
-    //             self._own_en_passant = format!("{}{}", self._col_names[col], 6);
-    //         }
+            // En passant capture
+            if piece == 'P' && self._position[(row as i8 + direction) as usize][col - 1] == 'x' {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 - 1],
+                    piece,
+                );
+            } else if piece == 'p'
+                && self._position[(row as i8 + direction) as usize][col - 1] == 'X'
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 - 1],
+                    piece,
+                );
+            }
+        }
 
-    //         // normal push
-    //         if self.is_legal_move([row as i8, col as i8], [row as i8 + 1, col as i8], piece) {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 1, col as i8],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
+        // Capture right
+        if col < 7 {
+            if self.is_legal_move(
+                [row as i8, col as i8],
+                [row as i8 + direction, col as i8 + 1],
+                piece,
+            ) && self.is_oponent(piece, [row as i8 + direction, col as i8 + 1])
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 + 1],
+                    piece,
+                );
+            }
 
-    //         // take left
-    //         if col > 0
-    //             && !(self._position[row + 1][col - 1] == ' ')
-    //             && self.is_legal_move(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 1, col as i8 - 1],
-    //                 piece,
-    //             )
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 1, col as i8 - 1],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
-
-    //         //take right
-    //         if col < 7
-    //             && !(self._position[row + 1][col + 1] == ' ')
-    //             && self.is_legal_move(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 1, col as i8 + 1],
-    //                 piece,
-    //             )
-    //         {
-    //             self.create_position(
-    //                 [row as i8, col as i8],
-    //                 [row as i8 + 1, col as i8 + 1],
-    //                 piece,
-    //                 [-1, -1],
-    //             )
-    //         }
-
-    //         // en passant
-    //         if self._en_passant != "-" && row == 4 {
-    //             if col < 7 && self._en_passant == format!("{}{}", self._col_names[(col + 1)], 3) {
-    //                 self.create_position(
-    //                     [row as i8, col as i8],
-    //                     [row as i8 + 1, col as i8 + 1],
-    //                     piece,
-    //                     [4, (col + 1) as i8],
-    //                 )
-    //             }
-    //             if col > 0 && self._en_passant == format!("{}{}", self._col_names[(col - 1)], 3) {
-    //                 self.create_position(
-    //                     [row as i8, col as i8],
-    //                     [row as i8 + 1, col as i8 - 1],
-    //                     piece,
-    //                     [4, (col - 1) as i8],
-    //                 )
-    //             }
-    //         }
-    //     }
-    // }
+            // En passant capture
+            if piece == 'P' && self._position[(row as i8 + direction) as usize][col + 1] == 'x' {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 + 1],
+                    piece,
+                );
+            } else if piece == 'p'
+                && self._position[(row as i8 + direction) as usize][col + 1] == 'X'
+            {
+                self.create_position(
+                    [row as i8, col as i8],
+                    [row as i8 + direction, col as i8 + 1],
+                    piece,
+                );
+            }
+        }
+    }
 
     // fn generate_rook_moves(&mut self, row: usize, col: usize, piece: char) {
     //     for direction in 0i8..=3 {
@@ -418,7 +362,6 @@ impl MoveGen {
                         [row as i8, col as i8],
                         [row as i8 + i, col as i8 + j],
                         piece,
-                        [-1, -1],
                     )
                 }
             }
@@ -608,18 +551,83 @@ impl MoveGen {
         }
     }
 
-    fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char, en_passant: [i8; 2]) {
-        if en_passant[0] != -1 {
-            self._position[en_passant[0] as usize][en_passant[1] as usize] = ' ';
-        }
+    fn create_position(&mut self, old: [i8; 2], new: [i8; 2], piece: char) {
         let mut new_position = self._position;
+        self.create_en_passant(old, new, piece, &mut new_position);
+        self.capture_en_passant(old, new, piece, &mut new_position);
         new_position[old[0] as usize][old[1] as usize] = ' ';
-        new_position[new[0] as usize][new[1] as usize] = piece;
-        self._found_positions.push(FoundPosition {
-            _position: new_position,
-            _en_passant: [-1, -1],
-            _castling: [false, false, false, false],
-        });
+        if self.can_promote(new, piece) {
+            let pieces = self.promote(piece);
+            for piece in pieces {
+                new_position[new[0] as usize][new[1] as usize] = piece;
+                self._found_positions.push(FoundPosition {
+                    _position: new_position,
+                    _en_passant: [-1, -1],
+                    _castling: [false, false, false, false],
+                });
+            }
+        } else {
+            new_position[new[0] as usize][new[1] as usize] = piece;
+            self._found_positions.push(FoundPosition {
+                _position: new_position,
+                _en_passant: [-1, -1],
+                _castling: [false, false, false, false],
+            });
+        }
+    }
+
+    fn create_en_passant(
+        &mut self,
+        old: [i8; 2],
+        new: [i8; 2],
+        piece: char,
+        new_position: &mut [[char; 8]; 8],
+    ) {
+        if piece == 'P' {
+            if old[0] == 6 && new[0] == 4 {
+                new_position[5][old[1] as usize] = 'X';
+            }
+        } else if piece == 'p' {
+            if old[0] == 1 && new[0] == 3 {
+                new_position[2][old[1] as usize] = 'x';
+            }
+        }
+    }
+
+    fn capture_en_passant(
+        &mut self,
+        old: [i8; 2],
+        new: [i8; 2],
+        piece: char,
+        new_position: &mut [[char; 8]; 8],
+    ) {
+        if piece == 'P' {
+            if new[1] - old[1] != 0 && new_position[new[0] as usize][new[1] as usize] == ' ' {
+                new_position[old[0] as usize][new[1] as usize] = ' ';
+            }
+        } else if piece == 'p' {
+            if new[1] - old[1] != 0 && new_position[new[0] as usize][new[1] as usize] == ' ' {
+                new_position[old[0] as usize][new[1] as usize] = ' ';
+            }
+        }
+    }
+
+    fn can_promote(&mut self, new: [i8; 2], piece: char) -> bool {
+        if piece == 'P' && new[0] == 0 {
+            return true;
+        } else if piece == 'p' && new[0] == 7 {
+            return true;
+        }
+        false
+    }
+
+    fn promote(&mut self, piece: char) -> [char; 4] {
+        if piece == 'P' {
+            return ['Q', 'R', 'B', 'N'];
+        } else if piece == 'p' {
+            return ['q', 'r', 'b', 'n'];
+        }
+        [' ', ' ', ' ', ' ']
     }
 }
 
