@@ -2,7 +2,7 @@ pub struct Board {
     pub _board: [[char; 8]; 8],
     _columns: [char; 8],
     pub _turn: char,
-    pub _castling: String,
+    pub _castling: [bool; 4],
     pub _en_passant: [i8; 2],
     pub _move_history: Vec<String>,
 }
@@ -22,7 +22,7 @@ impl Board {
             ],
             _columns: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
             _turn: 'w',
-            _castling: String::from("KQkq"),
+            _castling: [false, false, false, false],
             _en_passant: [-1, -1],
             _move_history: Vec::new(),
         }
@@ -76,7 +76,15 @@ impl Board {
 
         let castling = command.next();
         if castling.is_some() {
-            self._castling = castling.unwrap().to_string();
+            for c in castling.unwrap().chars() {
+                match c {
+                    'K' => self._castling[0] = true,
+                    'Q' => self._castling[1] = true,
+                    'k' => self._castling[2] = true,
+                    'q' => self._castling[3] = true,
+                    _ => (),
+                }
+            }
         }
 
         let mut board = fen.split('/');
