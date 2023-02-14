@@ -1,8 +1,9 @@
 pub struct Board {
     pub _board: [[char; 8]; 8],
+    _columns: [char; 8],
     pub _turn: char,
     pub _castling: String,
-    pub _en_passant: String,
+    pub _en_passant: [i8; 2],
     pub _move_history: Vec<String>,
 }
 
@@ -19,9 +20,10 @@ impl Board {
                 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             ],
+            _columns: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
             _turn: 'w',
             _castling: String::from("KQkq"),
-            _en_passant: String::from("-"),
+            _en_passant: [-1, -1],
             _move_history: Vec::new(),
         }
     }
@@ -71,14 +73,12 @@ impl Board {
         if turn.is_some() {
             self._turn = turn.unwrap().chars().next().unwrap();
         }
+
         let castling = command.next();
         if castling.is_some() {
             self._castling = castling.unwrap().to_string();
         }
-        let en_passant = command.next();
-        if en_passant.is_some() {
-            self._en_passant = en_passant.unwrap().to_string();
-        }
+
         let mut board = fen.split('/');
         let mut row = 0;
         while let Some(word) = board.next() {
@@ -95,6 +95,28 @@ impl Board {
                 }
             }
             row += 1;
+        }
+
+        // calculate en passant
+        let en_passant = command.next();
+        if en_passant.is_some() {
+            let col = self
+                ._columns
+                .iter()
+                .position(|&c| c == en_passant.unwrap().chars().next().unwrap())
+                .unwrap();
+            let row = 8 - en_passant
+                .unwrap()
+                .chars()
+                .nth(1)
+                .unwrap()
+                .to_digit(10)
+                .unwrap();
+            if self._turn == 'w' {
+                self._board[row as usize][col] = 'x';
+            } else {
+                self._board[row as usize][col] = 'X';
+            }
         }
     }
 
