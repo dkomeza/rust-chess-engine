@@ -48,6 +48,9 @@ impl Board {
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
             ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
         ];
+        self._turn = 'w';
+        self._castling = [true, true, true, true];
+        self._en_passant = [-1, -1];
         // while let Some(token) = command.next() {
         //     match token {
         //         "moves" => self.moves(command),
