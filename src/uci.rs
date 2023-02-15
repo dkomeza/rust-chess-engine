@@ -1,56 +1,71 @@
 use crate::engine::Engine;
+use crate::position::Position;
 
 pub struct Uci {
     pub engine: Engine,
+    pub position: Position,
+    _start_fen: String,
 }
 
 impl Uci {
-    pub fn parse_command(&mut self, command: String) {
-        let mut command = command.split_whitespace();
-        match command.next() {
-            Some("uci") => self.uci(),
-            Some("isready") => self.isready(),
-            Some("ucinewgame") => self.ucinewgame(),
-            Some("position") => self.position(command),
-            Some("go") => self.go(command),
-            Some("stop") => self.stop(),
-            Some("quit") => self.quit(),
-            Some("print") => self.print_board(),
-            _ => println!("Unknown command"),
+    pub fn new() -> Uci {
+        Uci {
+            engine: Engine::new(),
+            position: Position::new(),
+            _start_fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".to_string(),
         }
     }
-    fn uci(&mut self) {
-        println!("id name {}", self.engine._name);
-        println!("id author {}", self.engine._author);
-        println!("id version {}", self.engine._version);
-        println!("uciok");
+    pub fn uci_loop(&mut self) {
+        // set the starting position
+        self.position.set(&self._start_fen);
+
+        // loop until the program is terminated
+        loop {
+            let mut input = String::new();
+            std::io::stdin().read_line(&mut input).unwrap();
+            let input = input.trim();
+            let mut args = input.split_whitespace();
+            match args.next() {
+                Some("uci") => println!(
+                    "Name: {}, Author: {}, Version: {}",
+                    self.engine._name, self.engine._author, self.engine._version
+                ), // Done
+                Some("isready") => println!("readyok"), // Done
+                Some("ucinewgame") => println!("ucinewgame"),
+                Some("position") => self.position(&mut args),
+                Some("go") => println!("go"),
+                Some("quit") => break,
+                _ => println!("Unknown command: {}", input),
+            }
+        }
     }
 
-    fn isready(&mut self) {
-        self.engine.isready();
-    }
+    fn position(&mut self, args: &mut std::str::SplitWhitespace) {
+        let arg = args.next();
+        let mut fen = String::new();
+        match arg {
+            Some("startpos") => {
+                fen = self._start_fen.clone();
+                args.next();
+            }
+            Some("fen") => {
+                while let Some(s) = args.next() {
+                    if s == "moves" {
+                        break;
+                    }
+                    fen.push_str(s);
+                    fen.push_str(" ");
+                }
+            }
+            _ => (),
+        }
 
-    fn ucinewgame(&mut self) {
-        self.engine.ucinewgame();
-    }
+        self.position.set(&fen);
 
-    fn position(&mut self, command: std::str::SplitWhitespace) {
-        self.engine.position(command);
-    }
-
-    fn go(&mut self, command: std::str::SplitWhitespace) {
-        self.engine.go(command);
-    }
-
-    fn stop(&mut self) {
-        self.engine.stop();
-    }
-
-    fn quit(&mut self) {
-        std::process::exit(0);
-    }
-
-    fn print_board(&mut self) {
-        self.engine.print_board();
+        while let Some(s) = args.next() {
+            println!("move: {}", s);
+        }
     }
 }
+
+// Path: src/uci.rs
