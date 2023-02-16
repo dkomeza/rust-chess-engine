@@ -1,71 +1,70 @@
-use crate::engine::Engine;
-use crate::position::Position;
-
 pub struct Uci {
-    pub engine: Engine,
-    pub position: Position,
-    _start_fen: String,
+    _name: &'static str,
+    _author: &'static str,
+    _version: &'static str,
 }
 
 impl Uci {
     pub fn new() -> Uci {
         Uci {
-            engine: Engine::new(),
-            position: Position::new(),
-            _start_fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".to_string(),
+            _name: "Rusty",
+            _author: "dkomeza",
+            _version: "0.1.0",
         }
     }
+
     pub fn uci_loop(&mut self) {
-        // set the starting position
-        self.position.set(&self._start_fen);
+        let mut line = String::new();
+        let stdin = std::io::stdin();
 
-        // loop until the program is terminated
         loop {
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap();
-            let input = input.trim();
-            let mut args = input.split_whitespace();
-            match args.next() {
-                Some("uci") => println!(
-                    "Name: {}, Author: {}, Version: {}",
-                    self.engine._name, self.engine._author, self.engine._version
-                ), // Done
-                Some("isready") => println!("readyok"), // Done
-                Some("ucinewgame") => println!("ucinewgame"),
-                Some("position") => self.position(&mut args),
-                Some("go") => println!("go"),
-                Some("quit") => break,
-                _ => println!("Unknown command: {}", input),
+            line.clear();
+            stdin.read_line(&mut line).unwrap();
+            let mut args = line.split_whitespace();
+            let command = args.next().unwrap_or("");
+
+            match command {
+                "uci" => self.uci(),
+                "isready" => self.isready(),
+                // "ucinewgame" => self.ucinewgame(&mut stdout),
+                "position" => self.position(args),
+                // "go" => self.go(&mut stdout, args),
+                // "stop" => self.stop(&mut stdout),
+                "quit" => break,
+                _ => (),
             }
         }
     }
 
-    fn position(&mut self, args: &mut std::str::SplitWhitespace) {
-        let arg = args.next();
+    fn uci(&mut self) {
+        println!(
+            "Name: {}, Author: {}, Version: {}",
+            self._name, self._author, self._version
+        );
+    }
+
+    fn isready(&mut self) {
+        println!("readyok");
+    }
+
+    fn position(&mut self, mut args: std::str::SplitWhitespace) {
+        let start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         let mut fen = String::new();
-        match arg {
-            Some("startpos") => {
-                fen = self._start_fen.clone();
-                args.next();
-            }
-            Some("fen") => {
-                while let Some(s) = args.next() {
-                    if s == "moves" {
+
+        match args.next().unwrap_or("") {
+            "startpos" => fen.push_str(start_fen),
+            "fen" => {
+                while let Some(arg) = args.next() {
+                    if arg == "moves" {
                         break;
                     }
-                    fen.push_str(s);
-                    fen.push_str(" ");
+                    fen.push_str(arg);
+                    fen.push(' ');
                 }
             }
             _ => (),
         }
 
-        self.position.set(&fen);
-
-        while let Some(s) = args.next() {
-            println!("move: {}", s);
-        }
+        println!("FEN: {}", fen);
     }
 }
-
-// Path: src/uci.rs
