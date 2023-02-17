@@ -12,11 +12,9 @@ impl Threads {
     pub fn init(&mut self) {
         println!("Thread: {}", self._thread);
     }
-}
 
-impl Default for Threads {
-    fn default() -> Threads {
-        Threads::new()
+    pub fn start(&mut self) {
+
     }
 }
 
