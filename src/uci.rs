@@ -1,3 +1,7 @@
+use crate::THREADS;
+use crate::types::*;
+use crate::SEARCH;
+
 pub struct Uci {
     _name: &'static str,
     _author: &'static str,
@@ -28,7 +32,7 @@ impl Uci {
                 "isready" => self.isready(),
                 // "ucinewgame" => self.ucinewgame(&mut stdout),
                 "position" => self.position(args),
-                // "go" => self.go(&mut stdout, args),
+                "go" => self.go(args),
                 // "stop" => self.stop(&mut stdout),
                 "quit" => break,
                 _ => (),
@@ -66,5 +70,47 @@ impl Uci {
         }
 
         println!("FEN: {}", fen);
+    }
+
+    fn go(&mut self, mut args: std::str::SplitWhitespace) {
+        let mut limits = SEARCH._limits.clone();
+        let mut ponderMode = false;
+
+        limits._starttime = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as i32;
+
+        while let Some(arg) = args.next() {
+            match arg {
+                "searchmoves" => {
+                    while let Some(arg) = args.next() {
+                        // limits._moves.push(Move::from_uci(arg));
+                    }
+                }
+                "wtime" => {
+                    limits._time[Side::WHITE as usize] = args.next().unwrap_or("0").parse().unwrap()
+                }
+                "btime" => {
+                    limits._time[Side::BLACK as usize] = args.next().unwrap_or("0").parse().unwrap()
+                }
+                "winc" => {
+                    limits._inc[Side::WHITE as usize] = args.next().unwrap_or("0").parse().unwrap()
+                }
+                "binc" => {
+                    limits._inc[Side::BLACK as usize] = args.next().unwrap_or("0").parse().unwrap()
+                }
+                "movestogo" => limits._movestogo = args.next().unwrap_or("0").parse().unwrap(),
+                "depth" => limits._depth = args.next().unwrap_or("0").parse().unwrap(),
+                "nodes" => limits._nodes = args.next().unwrap_or("0").parse().unwrap(),
+                "mate" => limits._mate = args.next().unwrap_or("0").parse().unwrap(),
+                "movetime" => limits._movetime = args.next().unwrap_or("0").parse().unwrap(),
+                "infinite" => limits._infinite = true,
+                "ponder" => ponderMode = true,
+                _ => (),
+            }
+        }
+
+        THREADS.start(pos, states, limits, ponderMode)
     }
 }
