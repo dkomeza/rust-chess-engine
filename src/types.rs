@@ -96,7 +96,8 @@ pub enum Piece {
     BlackRook,
     BlackQueen,
     BlackKing,
-    Empty = 16,
+    Empty = 0,
+    EnPassant = 16,
 }
 
 impl Piece {
@@ -132,6 +133,7 @@ impl Piece {
             12 => 'r',
             13 => 'q',
             14 => 'k',
+            16 => 'e',
             _ => ' ',
         }
     }
@@ -147,3 +149,17 @@ pub enum Direction {
     DOWNRIGHT = -7,
     DOWNLEFT = -9,
 }
+
+pub enum Color {
+    WHITE = 0,
+    BLACK = 1,
+}
+
+pub enum Castling {
+    WhiteKingside = 1,
+    WhiteQueenside = 2,
+    BlackKingside = 4,
+    BlackQueenside = 8,
+}
+
+pub const FILES: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
