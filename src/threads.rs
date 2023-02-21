@@ -13,7 +13,7 @@ impl Threads {
         println!("Thread: {}", self._thread);
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self, ) {
 
     }
 }

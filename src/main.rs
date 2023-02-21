@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate lazy_static;
-use std::sync::Mutex;
 
 pub mod endgame;
 pub mod position;

@@ -1,6 +1,7 @@
-use crate::THREADS;
+use crate::position;
 use crate::types::*;
 use crate::SEARCH;
+use crate::THREADS;
 
 pub struct Uci {
     _name: &'static str,
@@ -18,6 +19,9 @@ impl Uci {
     }
 
     pub fn uci_loop(&mut self) {
+        let pos = position::Position::new();
+
+        // create variables for storing the input
         let mut line = String::new();
         let stdin = std::io::stdin();
 
@@ -74,7 +78,7 @@ impl Uci {
 
     fn go(&mut self, mut args: std::str::SplitWhitespace) {
         let mut limits = SEARCH._limits.clone();
-        let mut ponderMode = false;
+        let mut ponder_mode = false;
 
         limits._starttime = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -106,11 +110,11 @@ impl Uci {
                 "mate" => limits._mate = args.next().unwrap_or("0").parse().unwrap(),
                 "movetime" => limits._movetime = args.next().unwrap_or("0").parse().unwrap(),
                 "infinite" => limits._infinite = true,
-                "ponder" => ponderMode = true,
+                "ponder" => ponder_mode = true,
                 _ => (),
             }
         }
 
-        THREADS.start(pos, states, limits, ponderMode)
+        // THREADS.start(pos, states, limits, ponder_mode)
     }
 }
