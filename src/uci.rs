@@ -81,6 +81,12 @@ impl Uci {
         }
 
         self._position.set(&fen);
+
+        if args.next().unwrap_or("") == "moves" {
+            while let Some(arg) = args.next() {
+                println!("Move: {}", arg);
+            }
+        }
     }
 
     fn go(&mut self, mut args: std::str::SplitWhitespace) {
