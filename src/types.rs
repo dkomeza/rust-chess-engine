@@ -84,13 +84,13 @@ pub enum Square {
 }
 
 pub enum Piece {
-    WhitePawn,
+    WhitePawn = 1,
     WhiteKnight,
     WhiteBishop,
     WhiteRook,
     WhiteQueen,
     WhiteKing,
-    BlackPawn = 8,
+    BlackPawn = 9,
     BlackKnight,
     BlackBishop,
     BlackRook,
@@ -115,6 +115,24 @@ impl Piece {
             'Q' => Piece::WhiteQueen as i8,
             'K' => Piece::WhiteKing as i8,
             _ => panic!("Invalid FEN string"),
+        }
+    }
+
+    pub fn get_char(piece: i8) -> char {
+        match piece {
+            1 => 'P',
+            2 => 'N',
+            3 => 'B',
+            4 => 'R',
+            5 => 'Q',
+            6 => 'K',
+            9 => 'p',
+            10 => 'n',
+            11 => 'b',
+            12 => 'r',
+            13 => 'q',
+            14 => 'k',
+            _ => ' ',
         }
     }
 }

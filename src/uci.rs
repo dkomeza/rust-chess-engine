@@ -6,6 +6,7 @@ pub struct Uci {
     _name: &'static str,
     _author: &'static str,
     _version: &'static str,
+    _start_fen: &'static str,
     _position: position::Position,
 }
 
@@ -15,13 +16,13 @@ impl Uci {
             _name: "Rusty",
             _author: "dkomeza",
             _version: "0.1.0",
+            _start_fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             _position: position::Position::new(),
         }
     }
 
     pub fn uci_loop(&mut self) {
-        let pos = position::Position::new();
-
+        self._position.set(self._start_fen);
         // create variables for storing the input
         let mut line = String::new();
         let stdin = std::io::stdin();
@@ -40,6 +41,7 @@ impl Uci {
                 "go" => self.go(args),
                 // "stop" => self.stop(&mut stdout),
                 "quit" => break,
+                "board" => self.board(),
                 _ => (),
             }
         }
@@ -121,5 +123,9 @@ impl Uci {
         }
 
         // THREADS.start(pos, states, limits, ponder_mode)
+    }
+
+    fn board(&mut self) {
+        self._position.board();
     }
 }
