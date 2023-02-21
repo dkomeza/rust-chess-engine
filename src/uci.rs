@@ -1,12 +1,12 @@
 use crate::position;
 use crate::types::*;
 use crate::SEARCH;
-use crate::THREADS;
 
 pub struct Uci {
     _name: &'static str,
     _author: &'static str,
     _version: &'static str,
+    _position: position::Position,
 }
 
 impl Uci {
@@ -15,6 +15,7 @@ impl Uci {
             _name: "Rusty",
             _author: "dkomeza",
             _version: "0.1.0",
+            _position: position::Position::new(),
         }
     }
 
@@ -73,7 +74,11 @@ impl Uci {
             _ => (),
         }
 
-        println!("FEN: {}", fen);
+        if fen.is_empty() {
+            fen.push_str(start_fen);
+        }
+
+        self._position.set(&fen);
     }
 
     fn go(&mut self, mut args: std::str::SplitWhitespace) {

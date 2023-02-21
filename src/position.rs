@@ -1,14 +1,34 @@
-pub struct Position {
+use crate::types::*;
 
+pub struct Position {
+    _board: [i8; 64],
 }
 
 impl Position {
     pub fn new() -> Position {
-        Position {}
+        Position {
+            _board: [0; 64],
+        }
     }
 
-    pub fn set(&mut self) {
+    pub fn set(&mut self, fen: &str) {
+        let mut sq = Square::A8 as usize;
+        let board = fen.split_whitespace().next().unwrap();
         
+        for c in board.chars() {
+            if c == ' ' {
+                break;
+            }
+            if c.is_digit(10) {
+                sq += c.to_digit(10).unwrap() as usize;
+            } else if c == '/' {
+                sq += 2 * Direction::DOWN as usize;
+            } else {
+                let piece = Piece::get_piece(c);
+                self._board[sq as usize] = piece;
+                sq += Direction::RIGHT as usize;
+            }
+        }
     }
 }
 
