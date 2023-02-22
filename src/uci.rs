@@ -84,8 +84,11 @@ impl Uci {
 
         if args.next().unwrap_or("") == "moves" {
             while let Some(arg) = args.next() {
-                println!("Move: {}", arg);
+                self._position.make_move(arg);
             }
+            // self._position.board();
+            // println!("Castle rights: {}", self._position._castle_rights);
+            // println!("Side to move: {}", self._position._side_to_move);
         }
     }
 
