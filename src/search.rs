@@ -1,17 +1,41 @@
-use crate::types::*;
+use crate::{types::*, POSITION};
+
+use self::move_gen::MoveGen;
+pub mod move_gen;
 
 pub struct Search {
     pub _limits: Limits,
+    _move_gen: MoveGen,
 }
 
 impl Search {
     pub fn new() -> Search {
         Search {
             _limits: Limits::new(),
+            _move_gen: MoveGen::new(),
+        }
+    }
+    pub fn start(&mut self, limits: &Limits) {
+        self._limits = limits.clone();
+
+        if self._limits._depth > 0 {
+            self._start_depth_search(self._limits._depth);
         }
     }
 
-    
+    fn _start_depth_search(&mut self, depth: i8) {
+        let position = POSITION.lock().unwrap();
+        let state_info = StateInfo {
+            position: &position._board,
+            castling: &position._castle_rights,
+            side_to_move: &position._side_to_move,
+        };
+        self._move_gen.start(state_info);
+        let mut current_depth = 0;
+        while current_depth < depth {
+            current_depth += 1;
+        }
+    }
 }
 
 pub struct Limits {
@@ -20,7 +44,7 @@ pub struct Limits {
     pub _npmsec: i32,
     pub _movetime: i32,
     pub _starttime: i32,
-    pub _depth: i32,
+    pub _depth: i8,
     pub _movestogo: i32,
     pub _mate: i32,
     pub _infinite: bool,
@@ -62,4 +86,10 @@ impl Limits {
             _moves: self._moves.clone(),
         }
     }
+}
+
+pub struct StateInfo<'a> {
+    pub position: &'a [i8; 64],
+    pub castling: &'a i8,
+    pub side_to_move: &'a i8,
 }

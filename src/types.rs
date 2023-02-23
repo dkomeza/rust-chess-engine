@@ -174,3 +174,8 @@ pub enum Castling {
 }
 
 pub const FILES: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+pub struct StateInfo{
+    pub castling_rights: i8,
+    pub rule_50: i32,
+}

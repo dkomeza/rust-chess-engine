@@ -1,7 +1,7 @@
 use crate::types::*;
 
 pub struct Position {
-    _board: [i8; 64],
+    pub _board: [i8; 64],
     pub _side_to_move: i8,
     pub _castle_rights: i8,
 }
