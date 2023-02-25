@@ -17,7 +17,7 @@ impl Search {
     }
     pub fn start(&mut self, limits: &Limits) {
         self._limits = limits.clone();
-
+        
         if self._limits._depth > 0 {
             self._start_depth_search(self._limits._depth);
         }

@@ -164,6 +164,8 @@ pub enum Direction {
 pub enum Color {
     WHITE = 0,
     BLACK = 8,
+    YELLOW = 16,
+    RED = 24,
 }
 
 pub enum Castling {
@@ -175,7 +177,7 @@ pub enum Castling {
 
 pub const FILES: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-pub struct StateInfo{
+pub struct StateInfo {
     pub castling_rights: i8,
     pub rule_50: i32,
 }
