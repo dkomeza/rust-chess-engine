@@ -8,6 +8,8 @@ pub struct MoveGen {
     _castling: i8,
     _side_to_move: i8,
     _found_moves: i8,
+    _red_squares: HashMap<usize, bool>,
+    _yellow_squares: HashMap<usize, bool>,
 }
 
 impl MoveGen {
@@ -17,6 +19,8 @@ impl MoveGen {
             _castling: 0,
             _side_to_move: 0,
             _found_moves: 0,
+            _red_squares: HashMap::new(),
+            _yellow_squares: HashMap::new(),
         }
     }
 
@@ -26,24 +30,26 @@ impl MoveGen {
         self._side_to_move = state_info.side_to_move.clone();
 
         self.create_squares();
-        // if self._side_to_move == Color::WHITE as i8 {
-        //     for sq in 0..64 {
-        //         let piece = self._position[sq];
-        //         if piece < Color::BLACK as i8 && piece > 0 {
-        //             self.generate_piece_moves(sq, piece)
-        //         }
-        //     }
-        // } else {
-        //     for sq in 0..64 {
-        //         let piece = self._position[sq];
-        //         if piece > Color::BLACK as i8 && piece < 15 {
-        //             self.generate_piece_moves(sq, piece)
-        //         }
-        //     }
-        // }
+        if self._side_to_move == Color::WHITE as i8 {
+            for sq in 0..64 {
+                let piece = self._position[sq];
+                if piece < Color::BLACK as i8 && piece > 0 {
+                    self.generate_piece_moves(sq, piece)
+                }
+            }
+        } else {
+            for sq in 0..64 {
+                let piece = self._position[sq];
+                if piece > Color::BLACK as i8 && piece < 15 {
+                    self.generate_piece_moves(sq, piece)
+                }
+            }
+        }
     }
 
     fn create_squares(&mut self) {
+        self._red_squares = HashMap::new();
+        self._yellow_squares = HashMap::new();
         let king = self
             ._position
             .iter()
@@ -54,28 +60,27 @@ impl MoveGen {
         } else {
             Color::WHITE as i8
         };
-        self.create_red_squares(king, opponent_color)
+        self.create_red_squares(king, opponent_color);
     }
 
     fn create_red_squares(&mut self, king: usize, opponent_color: i8) {
         // create red squares
-        let mut red_squares = HashMap::new();
 
         if self._side_to_move == Color::WHITE as i8 {
             // pawn checks
             if self._position[king + 7] == (Piece::PAWN as i8 | Color::BLACK as i8) {
-                red_squares.insert(king + 7, true);
+                self._red_squares.insert(king + 7, true);
             }
             if self._position[king + 9] == (Piece::PAWN as i8 | Color::BLACK as i8) {
-                red_squares.insert(king + 9, true);
+                self._red_squares.insert(king + 9, true);
             }
         } else {
             // pawn checks
             if self._position[king - 7] == (Piece::PAWN as i8 | Color::WHITE as i8) {
-                red_squares.insert(king - 7, true);
+                self._red_squares.insert(king - 7, true);
             }
             if self._position[king - 9] == (Piece::PAWN as i8 | Color::WHITE as i8) {
-                red_squares.insert(king - 9, true);
+                self._red_squares.insert(king - 9, true);
             }
         }
 
@@ -93,7 +98,7 @@ impl MoveGen {
         for sq in kinght_checks.iter() {
             if *sq > 0 && *sq < 64 {
                 if self._position[*sq as usize] == (Piece::KNIGHT as i8 | opponent_color) {
-                    red_squares.insert(*sq as usize, true);
+                    self._red_squares.insert(*sq as usize, true);
                 }
             }
         }
@@ -103,6 +108,8 @@ impl MoveGen {
         for direction in 0..4 {
             let mut sq = king;
             let mut squares: Vec<i8> = Vec::new();
+            let mut own_pieces = 0i8;
+            let mut first_own_piece = 0i8;
             loop {
                 let new_sq = sq as i8 + bishop_directions[direction];
                 let rank = sq % 8;
@@ -125,14 +132,31 @@ impl MoveGen {
                 sq = new_sq as usize;
                 squares.push(sq as i8);
                 if self._position[sq] == (Piece::BISHOP as i8 | opponent_color) {
-                    red_squares.insert(sq, true);
-                    for square in squares {
-                        red_squares.insert(square as usize, true);
+                    if own_pieces == 1 {
+                        self._yellow_squares.insert(first_own_piece as usize, true);
+                    } else if own_pieces == 0 {
+                        self._red_squares.insert(sq, true);
+                        for square in squares {
+                            self._red_squares.insert(square as usize, true);
+                        }
                     }
+
                     break;
                 }
+
                 if self._position[sq] != Piece::EMPTY as i8 {
-                    break;
+                    // opponent piece
+                    if self._position[sq] > opponent_color {
+                        break;
+                    }
+                    // own piece
+                    if self._position[sq] < opponent_color {
+                        own_pieces += 1;
+                        println!("own piece");
+                        if own_pieces == 1 {
+                            first_own_piece = sq as i8;
+                        }
+                    }
                 }
             }
         }
@@ -142,6 +166,8 @@ impl MoveGen {
         for direction in 0..4 {
             let mut sq = king;
             let mut squares: Vec<i8> = Vec::new();
+            let mut own_pieces = 0i8;
+            let mut first_own_piece = 0i8;
             loop {
                 let new_sq = sq as i8 + rook_directions[direction];
                 let rank = sq % 8;
@@ -157,15 +183,28 @@ impl MoveGen {
                 sq = new_sq as usize;
                 squares.push(sq as i8);
                 if self._position[sq] == (Piece::ROOK as i8 | opponent_color) {
-                    println!("rook check, sq: {}", sq);
-                    red_squares.insert(sq, true);
-                    for square in &squares {
-                        red_squares.insert(square.to_owned() as usize, true);
+                    if own_pieces == 1 {
+                        self._yellow_squares.insert(first_own_piece as usize, true);
+                    } else if own_pieces == 0 {
+                        self._red_squares.insert(sq, true);
+                        for square in &squares {
+                            self._red_squares.insert(square.to_owned() as usize, true);
+                        }
                     }
                     break;
                 }
                 if self._position[sq] != Piece::EMPTY as i8 {
-                    break;
+                    // opponent piece
+                    if self._position[sq] > opponent_color {
+                        break;
+                    }
+                    // own piece
+                    if self._position[sq] < opponent_color {
+                        own_pieces += 1;
+                        if own_pieces == 1 {
+                            first_own_piece = sq as i8;
+                        }
+                    }
                 }
             }
             squares.clear();
@@ -176,6 +215,8 @@ impl MoveGen {
         for direction in 0..8 {
             let mut sq = king;
             let mut squares: Vec<i8> = Vec::new();
+            let mut own_pieces = 0i8;
+            let mut first_own_piece = 0i8;
             loop {
                 let new_sq = sq as i8 + queen_directions[direction];
                 let rank = sq % 8;
@@ -204,14 +245,28 @@ impl MoveGen {
                 sq = new_sq as usize;
                 squares.push(sq as i8);
                 if self._position[sq] == (Piece::QUEEN as i8 | opponent_color) {
-                    red_squares.insert(sq, true);
-                    for square in &squares {
-                        red_squares.insert(square.to_owned() as usize, true);
+                    if own_pieces == 1 {
+                        self._yellow_squares.insert(first_own_piece as usize, true);
+                    } else if own_pieces == 0 {
+                        self._red_squares.insert(sq, true);
+                        for square in &squares {
+                            self._red_squares.insert(square.to_owned() as usize, true);
+                        }
                     }
                     break;
                 }
                 if self._position[sq] != Piece::EMPTY as i8 {
-                    break;
+                    // opponent piece
+                    if self._position[sq] > opponent_color {
+                        break;
+                    }
+                    // own piece
+                    if self._position[sq] < opponent_color {
+                        own_pieces += 1;
+                        if own_pieces == 1 {
+                            first_own_piece = sq as i8;
+                        }
+                    }
                 }
             }
             squares.clear();
@@ -231,14 +286,13 @@ impl MoveGen {
         for sq in king_checks.iter() {
             if *sq > 0 && *sq < 64 {
                 if self._position[*sq as usize] == (Piece::KING as i8 | opponent_color) {
-                    red_squares.insert(*sq as usize, true);
+                    self._red_squares.insert(*sq as usize, true);
                 }
             }
         }
-    }
 
-    fn create_yellow_squares(&mut self) {
-
+        println!("red squares: {:#?}", self._red_squares);
+        println!("yellow squares: {:#?}", self._yellow_squares);
     }
 
     fn generate_piece_moves(&mut self, sq: usize, piece: i8) {
@@ -255,6 +309,5 @@ impl MoveGen {
             Direction::UP as i8
         };
         let rank = sq / 8;
-        if rank == 1 {}
     }
 }
